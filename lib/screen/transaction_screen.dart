@@ -25,6 +25,13 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
   @override
   Widget build(BuildContext context) {
     final model = viewModel.model as _TransactionModel;
+    final buttons = <Widget>[];
+    buttons.add(TextButton(onPressed: onCancel, child: const Text("キャンセル")));
+    if (widget.data == null) {
+      buttons.add(TextButton(onPressed: onCreate, child: const Text("作成")));
+    } else {
+      buttons.add(TextButton(onPressed: onUpdate, child: const Text("更新")));
+    }
     return SimpleDialog(title: const Text("取引"), children: [
       SimpleDialogOption(
           child: DropdownButton(
@@ -55,11 +62,7 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
                   print(ex.toString());
                 }
               })),
-      SimpleDialogOption(
-          child: ButtonBar(children: [
-        TextButton(onPressed: onCancel, child: const Text("キャンセル")),
-        TextButton(onPressed: onCreate, child: const Text("作成"))
-      ]))
+      SimpleDialogOption(child: ButtonBar(children: buttons))
     ]);
   }
 
@@ -78,6 +81,15 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
 
   void onCreate() {
     viewModel.create();
+    Navigator.pop(context);
+  }
+
+  void onUpdate() {
+    final data = widget.data;
+    if (data == null) {
+      return;
+    }
+    viewModel.update(data.id);
     Navigator.pop(context);
   }
 }
