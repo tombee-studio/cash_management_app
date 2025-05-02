@@ -113,6 +113,7 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
 
 class _TransactionModel
     extends CrudModel<DbTransactionData, DbTransactionCompanion> {
+  DbTransactionData? _data;
   late final Property<String> _name;
   late final Property<DateTime> _transactionDate;
   late final Property<int> _cost;
@@ -137,19 +138,21 @@ class _TransactionModel
 
     int transactionIntValue = data?.transactionType ?? 0;
     _transactionType = propertyOf(TransactionType.values[transactionIntValue]);
+
+    this._data = data;
   }
 
   @override
   Future<DbTransactionData> create() async {
-    final factory =
-        _TransactionFactory(cost, name, transactionDate, transactionType);
+    final factory = _TransactionFactory(cost, name, transactionDate,
+        transactionType, DateTime.now(), DateTime.now());
     return await repository.create(factory);
   }
 
   @override
   Future<DbTransactionData> update(int id) async {
-    final factory =
-        _TransactionFactory(cost, name, transactionDate, transactionType);
+    final factory = _TransactionFactory(cost, name, transactionDate,
+        transactionType, _data!.createdAt, DateTime.now());
     return await repository.update(id, factory);
   }
 }
@@ -194,9 +197,11 @@ class _TransactionFactory
   final String _name;
   final DateTime _transactionDate;
   final TransactionType _transactionType;
+  final DateTime _createdAt;
+  final DateTime _updatedAt;
 
-  _TransactionFactory(
-      this._cost, this._name, this._transactionDate, this._transactionType);
+  _TransactionFactory(this._cost, this._name, this._transactionDate,
+      this._transactionType, this._createdAt, this._updatedAt);
 
   @override
   DbTransactionCompanion generate() {
@@ -204,8 +209,8 @@ class _TransactionFactory
         name: Value(_name),
         transactionDate: Value(_transactionDate),
         cost: Value(_cost),
-        createdAt: Value(DateTime.now()),
-        updatedAt: Value(DateTime.now()),
+        createdAt: Value(_createdAt),
+        updatedAt: Value(_updatedAt),
         transactionType:
             Value(TransactionType.values.indexOf(_transactionType)));
   }
