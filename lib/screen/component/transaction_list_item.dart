@@ -36,7 +36,7 @@ class TransactionListItem extends ViewModelWidget<HomeScreenViewModel> {
         ),
         child: ListTile(
             leading: _icon,
-            title: Text(_transaction.cost.toString()),
+            title: Text("¥${_transaction.cost}"),
             subtitle:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(_transaction.name),
@@ -48,9 +48,9 @@ class TransactionListItem extends ViewModelWidget<HomeScreenViewModel> {
     final iconType = TransactionType.values[_transaction.transactionType];
     switch (iconType) {
       case TransactionType.income:
-        return const Icon(Icons.money);
+        return const Icon(Icons.arrow_circle_up, color: Colors.green);
       case TransactionType.expence:
-        return const Icon(Icons.payment);
+        return const Icon(Icons.arrow_circle_down, color: Colors.red);
     }
   }
 
