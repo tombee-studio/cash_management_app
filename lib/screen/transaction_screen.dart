@@ -34,34 +34,42 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
     }
     return SimpleDialog(title: const Text("取引"), children: [
       SimpleDialogOption(
-          child: DropdownButton(
-        value: model.transactionType,
-        items: TransactionType.values
-            .map((t) => DropdownMenuItem<TransactionType>(
-                value: t, child: Text(t.name)))
-            .toList(),
-        onChanged: (value) {
-          if (value != null) {
-            model.transactionType = value;
-          }
-        },
-      )),
-      SimpleDialogOption(
           child: TextFormField(
               initialValue: model.name,
               decoration: const InputDecoration(label: Text("用途")),
               onChanged: (value) => model.name = value)),
       SimpleDialogOption(
-          child: TextFormField(
-              initialValue: model.cost.toString(),
-              decoration: const InputDecoration(label: Text("コスト")),
-              onChanged: (value) {
-                try {
-                  model.cost = int.parse(value);
-                } catch (ex) {
-                  print(ex.toString());
-                }
-              })),
+          child:
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Expanded(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: TextFormField(
+                    initialValue: model.cost.toString(),
+                    decoration: const InputDecoration(label: Text("コスト")),
+                    onChanged: (value) {
+                      try {
+                        model.cost = int.parse(value);
+                      } catch (ex) {
+                        print(ex.toString());
+                      }
+                    }))),
+        Expanded(
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: DropdownButtonFormField(
+                    decoration: const InputDecoration(label: Text("種別")),
+                    value: model.transactionType,
+                    items: TransactionType.values
+                        .map((t) => DropdownMenuItem<TransactionType>(
+                            value: t, child: Text(getTransactionTypeName(t))))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        model.transactionType = value;
+                      }
+                    })))
+      ])),
       SimpleDialogOption(child: ButtonBar(children: buttons))
     ]);
   }
@@ -91,6 +99,15 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
     }
     viewModel.update(data.id);
     Navigator.pop(context);
+  }
+
+  String getTransactionTypeName(TransactionType transactionType) {
+    switch (transactionType) {
+      case TransactionType.expence:
+        return "支出";
+      case TransactionType.income:
+        return "収入";
+    }
   }
 }
 
