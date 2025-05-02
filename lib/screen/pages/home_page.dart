@@ -7,6 +7,10 @@ class HomePage extends ViewModelWidget<HomeScreenViewModel> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Home Page"));
+    return Column(children: [
+      SizedBox(
+          height: 240,
+          child: Card(child: parentViewModel.getTransactionChart(context)))
+    ]);
   }
 }

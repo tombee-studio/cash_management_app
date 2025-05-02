@@ -1,5 +1,7 @@
+import 'package:cash_management_app/data/transaction_type.dart';
 import 'package:cash_management_app/screen/component/transaction_list_item.dart';
 import 'package:cash_management_app/screen/transaction_screen.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:cash_management_app/data/home_screen_state.dart';
 import 'package:cash_management_app/model/home_screen_model.dart';
@@ -62,5 +64,20 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
 
   void deleteTransaction(int id) async {
     model.deleteTransaction(id);
+  }
+
+  Widget getTransactionChart(BuildContext context) {
+    int sum = 0;
+    return LineChart(LineChartData(lineBarsData: [
+      LineChartBarData(
+          spots: model.transactions.map((item) {
+        final isAdd = item.transactionType ==
+            TransactionType.values.indexOf(TransactionType.income);
+        final value = isAdd ? item.cost : -1 * item.cost;
+        sum += value;
+        return FlSpot(item.transactionDate.microsecondsSinceEpoch.toDouble(),
+            sum.toDouble());
+      }).toList())
+    ]));
   }
 }

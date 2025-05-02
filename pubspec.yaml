@@ -42,6 +42,7 @@ dependencies:
       url: https://github.com/tombee-studio/flutter_viewmodel
       ref: main
   flutter_slidable:
+  fl_chart:
 
 
 
