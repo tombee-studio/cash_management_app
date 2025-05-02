@@ -14,7 +14,7 @@ final transactionRepositoryProvider = RepositoryProvider<
     () => _TransactionCrudAppRepository());
 
 class TransactionScreen extends CrudModelStatefulWidget<DbTransactionData> {
-  const TransactionScreen({super.key, DbTransactionData? data});
+  const TransactionScreen({super.key, super.data});
 
   @override
   State<StatefulWidget> createState() => TransactionScreenState();
@@ -65,9 +65,8 @@ class TransactionScreenState extends CrudModelStatefulWidgetState<
 
   @override
   CrudModel<DbTransactionData, DbTransactionCompanion> createModel(
-      Notifier notifier) {
-    return _TransactionModel(notifier, createRepository(), widget.data);
-  }
+          Notifier notifier) =>
+      _TransactionModel(notifier, createRepository(), widget.data);
 
   @override
   RepositoryProvider<CrudRepository<DbTransactionData, DbTransactionCompanion>>
@@ -104,8 +103,8 @@ class _TransactionModel
 
   _TransactionModel(super.notifier, super.provider, DbTransactionData? data) {
     _name = propertyOf(data?.name ?? "");
-    _transactionDate = propertyOf(data?.transactionDate ?? DateTime.now());
     _cost = propertyOf(data?.cost ?? 0);
+    _transactionDate = propertyOf(data?.transactionDate ?? DateTime.now());
 
     int transactionIntValue = data?.transactionType ?? 0;
     _transactionType = propertyOf(TransactionType.values[transactionIntValue]);
