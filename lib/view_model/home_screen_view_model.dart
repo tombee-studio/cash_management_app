@@ -76,14 +76,15 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
       final date = DateTime(
           transactionDate.year, transactionDate.month, transactionDate.day);
       if (!dailyTransaction.date.isAtSameMomentAs(date)) {
-        final item = DailyTransactionData(date, 0, 0, dailyTransaction.sum);
-        dailyTransactions.add(item);
-        dailyTransaction = item;
+        final dailyItem =
+            DailyTransactionData(date, 0, 0, dailyTransaction.sum);
+        dailyTransactions.add(dailyItem);
+        dailyTransaction = dailyItem;
       }
       dailyTransaction.update(transaction);
     }
     final formatter = DateFormat("M月d日");
-    return LineChart(LineChartData(
+    return BarChart(BarChartData(
         titlesData: FlTitlesData(
             topTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -94,13 +95,15 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
                     showTitles: true,
                     getTitlesWidget: (value, meta) => Text(formatter.format(
                         DateTime.fromMicrosecondsSinceEpoch(value.toInt())))))),
-        lineBarsData: [
-          LineChartBarData(
-              spots: dailyTransactions
-                  .map((item) => FlSpot(
-                      item.date.microsecondsSinceEpoch.toDouble(),
-                      item.sum.toDouble()))
-                  .toList())
-        ]));
+        barGroups: dailyTransactions
+            .map((item) => BarChartGroupData(
+                    x: item.date.microsecondsSinceEpoch,
+                    barRods: <BarChartRodData>[
+                      BarChartRodData(
+                          toY: item.expence.toDouble(), color: Colors.red),
+                      BarChartRodData(
+                          toY: item.income.toDouble(), color: Colors.lightGreen)
+                    ]))
+            .toList()));
   }
 }
