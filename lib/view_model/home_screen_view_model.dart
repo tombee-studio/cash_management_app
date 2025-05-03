@@ -1,4 +1,4 @@
-import 'package:cash_management_app/data/transaction_type.dart';
+import 'package:cash_management_app/data/daily_transaction_data.dart';
 import 'package:cash_management_app/screen/component/transaction_list_item.dart';
 import 'package:cash_management_app/screen/transaction_screen.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -13,6 +13,7 @@ import 'package:cash_management_app/screen/pages/settings_page.dart';
 import 'package:flutter_viewmodel/bases/notifier.dart';
 import 'package:flutter_viewmodel/bases/repository_provider.dart';
 import 'package:flutter_viewmodel/bases/view_model.dart';
+import 'package:intl/intl.dart';
 
 final homeScreenRepositoryProvider =
     RepositoryProvider<HomeScreenRepository>(() => HomeScreenAppRepository());
@@ -67,17 +68,41 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
   }
 
   Widget getTransactionChart(BuildContext context) {
-    int sum = 0;
-    return LineChart(LineChartData(lineBarsData: [
-      LineChartBarData(
-          spots: model.transactions.map((item) {
-        final isAdd = item.transactionType ==
-            TransactionType.values.indexOf(TransactionType.income);
-        final value = isAdd ? item.cost : -1 * item.cost;
-        sum += value;
-        return FlSpot(item.transactionDate.microsecondsSinceEpoch.toDouble(),
-            sum.toDouble());
-      }).toList())
-    ]));
+    final dailyTransactions = <DailyTransactionData>[];
+    var dailyTransaction =
+        DailyTransactionData(DateTime.fromMicrosecondsSinceEpoch(0), 0, 0);
+    for (var transaction in model.transactions) {
+      final transactionDate = transaction.transactionDate;
+      final date = DateTime(
+          transactionDate.year, transactionDate.month, transactionDate.day);
+      if (!dailyTransaction.date.isAtSameMomentAs(date)) {
+        final dailyItem = DailyTransactionData(date, 0, 0);
+        dailyTransactions.add(dailyItem);
+        dailyTransaction = dailyItem;
+      }
+      dailyTransaction.update(transaction);
+    }
+    final formatter = DateFormat("M月d日");
+    return BarChart(BarChartData(
+        titlesData: FlTitlesData(
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) => Text(formatter.format(
+                        DateTime.fromMicrosecondsSinceEpoch(value.toInt())))))),
+        barGroups: dailyTransactions
+            .map((item) => BarChartGroupData(
+                    x: item.date.microsecondsSinceEpoch,
+                    barRods: <BarChartRodData>[
+                      BarChartRodData(
+                          toY: item.expence.toDouble(), color: Colors.red),
+                      BarChartRodData(
+                          toY: item.income.toDouble(), color: Colors.green)
+                    ]))
+            .toList()));
   }
 }

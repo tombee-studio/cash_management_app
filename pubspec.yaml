@@ -43,6 +43,7 @@ dependencies:
       ref: main
   flutter_slidable:
   fl_chart:
+  intl: ^0.18.1
 
 
 

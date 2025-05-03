@@ -10,7 +10,10 @@ class HomePage extends ViewModelWidget<HomeScreenViewModel> {
     return Column(children: [
       SizedBox(
           height: 240,
-          child: Card(child: parentViewModel.getTransactionChart(context)))
+          child: Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: parentViewModel.getTransactionChart(context))))
     ]);
   }
 }
