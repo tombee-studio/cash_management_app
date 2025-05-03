@@ -70,20 +70,20 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
   Widget getTransactionChart(BuildContext context) {
     final dailyTransactions = <DailyTransactionData>[];
     var dailyTransaction =
-        DailyTransactionData(DateTime.fromMicrosecondsSinceEpoch(0), 0, 0);
+        DailyTransactionData(DateTime.fromMicrosecondsSinceEpoch(0), 0, 0, 0);
     for (var transaction in model.transactions) {
       final transactionDate = transaction.transactionDate;
       final date = DateTime(
           transactionDate.year, transactionDate.month, transactionDate.day);
       if (!dailyTransaction.date.isAtSameMomentAs(date)) {
-        final dailyItem = DailyTransactionData(date, 0, 0);
-        dailyTransactions.add(dailyItem);
-        dailyTransaction = dailyItem;
+        final item = DailyTransactionData(date, 0, 0, dailyTransaction.sum);
+        dailyTransactions.add(item);
+        dailyTransaction = item;
       }
       dailyTransaction.update(transaction);
     }
     final formatter = DateFormat("M月d日");
-    return BarChart(BarChartData(
+    return LineChart(LineChartData(
         titlesData: FlTitlesData(
             topTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -94,15 +94,13 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
                     showTitles: true,
                     getTitlesWidget: (value, meta) => Text(formatter.format(
                         DateTime.fromMicrosecondsSinceEpoch(value.toInt())))))),
-        barGroups: dailyTransactions
-            .map((item) => BarChartGroupData(
-                    x: item.date.microsecondsSinceEpoch,
-                    barRods: <BarChartRodData>[
-                      BarChartRodData(
-                          toY: item.expence.toDouble(), color: Colors.red),
-                      BarChartRodData(
-                          toY: item.income.toDouble(), color: Colors.green)
-                    ]))
-            .toList()));
+        lineBarsData: [
+          LineChartBarData(
+              spots: dailyTransactions
+                  .map((item) => FlSpot(
+                      item.date.microsecondsSinceEpoch.toDouble(),
+                      item.sum.toDouble()))
+                  .toList())
+        ]));
   }
 }
