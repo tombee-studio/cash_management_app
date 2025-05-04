@@ -90,6 +90,8 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             rightTitles:
                 const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                     showTitles: true,
@@ -105,5 +107,45 @@ class HomeScreenViewModel extends ViewModel<HomeScreenModel> {
                           toY: item.income.toDouble(), color: Colors.lightGreen)
                     ]))
             .toList()));
+  }
+
+  Widget getSumChart(BuildContext context) {
+    final dailyTransactions = <DailyTransactionData>[];
+    var dailyTransaction =
+        DailyTransactionData(DateTime.fromMicrosecondsSinceEpoch(0), 0, 0, 0);
+    for (var transaction in model.transactions) {
+      final transactionDate = transaction.transactionDate;
+      final date = DateTime(
+          transactionDate.year, transactionDate.month, transactionDate.day);
+      if (!dailyTransaction.date.isAtSameMomentAs(date)) {
+        final dailyItem =
+            DailyTransactionData(date, 0, 0, dailyTransaction.sum);
+        dailyTransactions.add(dailyItem);
+        dailyTransaction = dailyItem;
+      }
+      dailyTransaction.update(transaction);
+    }
+    final formatter = DateFormat("M月d日");
+    return LineChart(LineChartData(
+        titlesData: FlTitlesData(
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) => Text(formatter.format(
+                        DateTime.fromMicrosecondsSinceEpoch(value.toInt())))))),
+        lineBarsData: [
+          LineChartBarData(
+              spots: dailyTransactions
+                  .map((item) => FlSpot(
+                      item.date.microsecondsSinceEpoch.toDouble(),
+                      item.sum.toDouble()))
+                  .toList())
+        ]));
   }
 }
