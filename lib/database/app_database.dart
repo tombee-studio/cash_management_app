@@ -25,7 +25,13 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 
   Future<List<DbTransactionData>> fetchTransactions() async {
-    return await (select(dbTransaction)).get();
+    final now = DateTime.now();
+    final startDateTime = DateTime(now.year, now.month, 1);
+    final endDateTime = DateTime(now.year, now.month + 1, 1);
+    return await (select(dbTransaction)
+          ..where((tbl) =>
+              tbl.transactionDate.isBetweenValues(startDateTime, endDateTime)))
+        .get();
   }
 
   Future<DbTransactionData> fetchTransactionItem(int id) async {
